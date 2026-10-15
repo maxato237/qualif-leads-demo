@@ -1,0 +1,84 @@
+@let r = result();
+<article class="result" [attr.data-category]="r.score.category">
+  <header class="head">
+    <div class="score" aria-hidden="true">
+      <span><span class="value">{{ r.score.value }}</span><span class="max">/10</span></span>
+    </div>
+    <div class="head-text">
+      <p class="pill">{{ categoryLabel() }}</p>
+      <h3 class="visually-hidden">Score {{ r.score.value }} sur 10, {{ categoryLabel() }}</h3>
+      <p class="project">{{ r.lead.project_label }}<span class="sep" aria-hidden="true"></span>{{ r.lead.budget }}</p>
+      <p class="timing">Traité en {{ seconds() }} s</p>
+    </div>
+  </header>
+
+  <p class="summary">{{ r.lead.summary }}</p>
+
+  <div class="next">
+    <p class="eyebrow">Prochaine action</p>
+    <p>{{ r.lead.next_action }}</p>
+  </div>
+
+  <dl class="facts">
+    <div>
+      <dt>Besoin</dt>
+      <dd>{{ r.lead.need || 'Non précisé' }}</dd>
+    </div>
+    <div>
+      <dt>Délai</dt>
+      <dd>{{ r.lead.deadline || 'Non précisé' }}</dd>
+    </div>
+  </dl>
+
+  <section class="criteria" aria-label="Détail du score">
+    <p class="eyebrow">Détail du score</p>
+    <ul>
+      <li class="criterion base">
+        <span class="c-label">Base</span>
+        <span class="c-reason">Toute demande part de 1 point</span>
+        <span class="c-points">1</span>
+      </li>
+      @for (c of r.score.criteria; track c.key) {
+        <li class="criterion">
+          <span class="c-label">{{ c.label }}</span>
+          <span class="c-reason">{{ c.reason }}</span>
+          <span class="c-points">{{ c.points }}<span class="c-max">/{{ c.max_points }}</span></span>
+          @if (c.max_points) {
+            <span class="bar" aria-hidden="true">
+              <span class="fill" [style.width.%]="(c.points / c.max_points) * 100"></span>
+            </span>
+          }
+        </li>
+      }
+    </ul>
+  </section>
+
+  @if (r.lead.red_flags.length) {
+    <section class="flags" aria-label="Points d'attention">
+      <p class="eyebrow">Points d'attention</p>
+      <ul>
+        @for (flag of r.lead.red_flags; track $index) {
+          <li>{{ flag }}</li>
+        }
+      </ul>
+    </section>
+  }
+
+  <ul class="delivery" aria-label="Envois">
+    <li [attr.data-status]="r.delivery.email">
+      <span class="dot" aria-hidden="true"></span>{{ emailLabel() }}
+    </li>
+    <li [attr.data-status]="r.delivery.sheet">
+      <span class="dot" aria-hidden="true"></span>{{ sheetLabel() }}
+    </li>
+  </ul>
+
+  <div class="actions">
+    @if (r.delivery.sheet_url) {
+      <a class="button button-primary" [href]="r.delivery.sheet_url" target="_blank" rel="noopener">
+        Voir la ligne dans le Google Sheet
+      </a>
+    }
+    <button type="button" class="button button-ghost" (click)="another.emit()">Tester une autre demande</button>
+  </div>
+</article>

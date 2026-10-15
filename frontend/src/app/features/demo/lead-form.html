@@ -1,0 +1,75 @@
+<div class="examples">
+  <p class="eyebrow" id="examples-label">Essayer avec un exemple</p>
+  <div class="chips" role="group" aria-labelledby="examples-label">
+    @for (example of examples; track example.id) {
+      <button
+        type="button"
+        class="chip"
+        [class.active]="activeExample() === example.id"
+        [attr.aria-pressed]="activeExample() === example.id"
+        (click)="useExample(example)"
+      >
+        <span class="chip-label">{{ example.label }}</span>
+        <span class="chip-hint">{{ example.hint }}</span>
+      </button>
+    }
+  </div>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <div class="row">
+    <label class="field">
+      <span class="label">Nom</span>
+      <input formControlName="name" autocomplete="off" [attr.aria-invalid]="!!errorFor('name')" />
+      @if (errorFor('name'); as error) {
+        <span class="error">{{ error }}</span>
+      }
+    </label>
+    <label class="field">
+      <span class="label">Société <span class="optional">facultatif</span></span>
+      <input formControlName="company" autocomplete="off" [attr.aria-invalid]="!!errorFor('company')" />
+      @if (errorFor('company'); as error) {
+        <span class="error">{{ error }}</span>
+      }
+    </label>
+  </div>
+
+  <label class="field">
+    <span class="label">Email</span>
+    <input formControlName="email" type="email" autocomplete="off" inputmode="email" [attr.aria-invalid]="!!errorFor('email')" />
+    @if (errorFor('email'); as error) {
+      <span class="error">{{ error }}</span>
+    }
+  </label>
+
+  <label class="field">
+    <span class="label">Votre projet</span>
+    <textarea
+      formControlName="message"
+      rows="6"
+      [attr.maxlength]="messageMax"
+      placeholder="Ce que vous voulez construire, votre budget, votre échéance."
+      [attr.aria-invalid]="!!errorFor('message')"
+    ></textarea>
+    <span class="meta">
+      @if (errorFor('message'); as error) {
+        <span class="error">{{ error }}</span>
+      }
+      <span class="count">{{ messageLength() }} / {{ messageMax }}</span>
+    </span>
+  </label>
+
+  <label class="trap" aria-hidden="true">
+    Site web
+    <input formControlName="website" tabindex="-1" autocomplete="off" />
+  </label>
+
+  <p class="privacy">
+    Démo : utilisez des coordonnées fictives. Le Google Sheet de démo est public, il n'affiche que le prénom,
+    l'initiale du nom et un email masqué.
+  </p>
+
+  <button type="submit" class="button button-primary submit" [disabled]="pending()">
+    {{ pending() ? 'Analyse en cours' : 'Envoyer la demande' }}
+  </button>
+</form>

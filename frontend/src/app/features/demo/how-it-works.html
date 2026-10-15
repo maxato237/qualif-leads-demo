@@ -1,0 +1,65 @@
+<section class="how" aria-labelledby="how-title">
+  <p class="eyebrow">Comment c'est noté</p>
+  <h2 id="how-title">L'IA lit, le code note.</h2>
+  <p class="lede">
+    L'IA ne donne pas la note. Elle extrait du message le besoin, le budget, l'échéance et qui écrit. Le score
+    est ensuite calculé par une grille fixe, la même pour chaque demande : il s'explique ligne par ligne et
+    personne ne peut l'obtenir en le réclamant dans son message.
+  </p>
+
+  <ol class="flow">
+    <li>
+      <span class="flow-n">1</span>
+      <h3>Extraction</h3>
+      <p>Le modèle Mistral renvoie des champs structurés, validés avant tout usage. Une réponse non conforme est rejetée.</p>
+    </li>
+    <li>
+      <span class="flow-n">2</span>
+      <h3>Score</h3>
+      <p>La grille ci-dessous donne une note de 1 à 10. Une demande hors du métier de l'agence vaut 1.</p>
+    </li>
+    <li>
+      <span class="flow-n">3</span>
+      <h3>Transmission</h3>
+      <p>Un email part vers la boîte de l'agence et une ligne s'ajoute au Google Sheet, en parallèle.</p>
+    </li>
+  </ol>
+
+  <div class="grid-wrap">
+    <table class="grid">
+      <caption class="visually-hidden">Grille de score</caption>
+      <thead>
+        <tr><th scope="col">Critère</th><th scope="col">Points</th><th scope="col">Règle</th></tr>
+      </thead>
+      <tbody>
+        @for (row of grid; track row.label) {
+          <tr><th scope="row">{{ row.label }}</th><td class="pts">{{ row.points }}</td><td>{{ row.rule }}</td></tr>
+        }
+      </tbody>
+    </table>
+    <p class="bands">
+      <span class="band hot">8 à 10 : chaud</span>
+      <span class="band warm">5 à 7 : tiède</span>
+      <span class="band cold">1 à 4 : froid</span>
+    </p>
+  </div>
+
+  <h3 class="guards-title">Garde-fous</h3>
+  <ul class="guards">
+    <li>Le message est traité comme une donnée : une consigne glissée dedans est ignorée et signalée.</li>
+    <li>Le destinataire de l'email est fixe. Le formulaire ne peut pas servir à envoyer des messages ailleurs.</li>
+    <li>Le Google Sheet reçoit du texte brut, jamais de formule, et seulement un email masqué.</li>
+    <li>10 demandes par heure et par visiteur, 100 par jour pour toute la démo.</li>
+  </ul>
+
+  <div class="cta">
+    <p>
+      <strong>Vous vendez ce type d'automatisation à vos clients ?</strong>
+      Je la développe et l'intègre en marque blanche, sur leur formulaire, leur CRM ou leur outil métier.
+    </p>
+    <div class="cta-links">
+      <a class="button button-primary" [href]="contactUrl()" target="_blank" rel="noopener">Me contacter</a>
+      <a class="button button-ghost" [href]="repositoryUrl()" target="_blank" rel="noopener">Voir le code</a>
+    </div>
+  </div>
+</section>

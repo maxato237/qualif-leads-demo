@@ -1,0 +1,78 @@
+<div class="banner">
+  <p class="notice">
+    <span class="mark" aria-hidden="true"></span>
+    <span><strong>Démo, agence fictive.</strong><span class="author"> Qualification de leads par IA conçue par NKENG ATO Maxime, développeur fullstack.</span></span>
+  </p>
+  <nav class="banner-links" aria-label="Liens de la démo">
+    <a href="#comment-c-est-note">Comment c'est noté</a>
+    <a class="contact" [href]="contactUrl" target="_blank" rel="noopener">Me contacter</a>
+  </nav>
+</div>
+
+<header class="agency">
+  <p class="brand"><span class="logo" aria-hidden="true">A</span>Atelier Ardoise</p>
+  <p class="agency-tag">Agence web, Bordeaux</p>
+</header>
+
+<main>
+  <section class="intro">
+    <h1>Chaque demande de contact lue, notée et transmise en quelques secondes.</h1>
+    <p class="lede">
+      Envoyez une demande depuis le formulaire du site de l'agence et voyez ce que reçoit son équipe : un score
+      de 1 à 10, un résumé, la prochaine action, un email et une ligne dans un Google Sheet.
+    </p>
+  </section>
+
+  <div class="panes">
+    <section class="pane form-pane" aria-labelledby="form-title">
+      <p class="eyebrow">Le site de l'agence</p>
+      <h2 id="form-title">Parlez-nous de votre projet</h2>
+      <app-lead-form [pending]="store.pending()" [serverErrors]="fieldErrors()" (submitted)="send($event)" />
+    </section>
+
+    <section class="pane inbox-pane" aria-labelledby="inbox-title" aria-live="polite" #inbox>
+      <p class="eyebrow">Côté agence</p>
+      <h2 id="inbox-title">Ce que reçoit l'équipe commerciale</h2>
+
+      @switch (store.phase()) {
+        @case ('loading') {
+          <ol class="steps" aria-label="Analyse en cours">
+            @for (step of steps; track step; let i = $index) {
+              <li class="step" [style.--i]="i">{{ step }}</li>
+            }
+          </ol>
+        }
+        @case ('done') {
+          <app-lead-result [result]="store.result()!" (another)="store.reset()" />
+        }
+        @case ('error') {
+          @if (error(); as e) {
+            <div class="error-box" role="alert">
+              <p>{{ e.message }}</p>
+              @if (e.canRetry) {
+                <button type="button" class="button button-primary" (click)="store.retry()">Réessayer</button>
+              }
+            </div>
+          } @else {
+            <p class="placeholder">Corrigez le formulaire, puis renvoyez la demande.</p>
+          }
+        }
+        @default {
+          <div class="placeholder">
+            <p>Choisissez un exemple ou écrivez votre propre demande, puis envoyez-la.</p>
+            <ul class="outputs">
+              <li><strong>Un score de 1 à 10</strong> avec le détail du calcul</li>
+              <li><strong>Un email</strong> envoyé à la boîte de l'agence</li>
+              <li><strong>Une ligne</strong> ajoutée au Google Sheet des leads</li>
+            </ul>
+            @if (store.sheetUrl(); as url) {
+              <a class="sheet-link" [href]="url" target="_blank" rel="noopener">Ouvrir le Google Sheet de démo</a>
+            }
+          </div>
+        }
+      }
+    </section>
+  </div>
+
+  <app-how-it-works id="comment-c-est-note" [contactUrl]="contactUrl" [repositoryUrl]="repositoryUrl" />
+</main>
