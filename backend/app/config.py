@@ -23,6 +23,8 @@ class Config:
     SHEET_RANGE = os.getenv("SHEET_RANGE", "Leads!A:L")
 
     # Email envoyé à l'agence fictive. Le destinataire est fixe : le visiteur ne le choisit jamais.
+    # Clé API Brevo (HTTPS) en priorité ; sinon SMTP, si l'hébergeur laisse sortir le port 587.
+    BREVO_API_KEY = os.getenv("BREVO_API_KEY", "")
     SMTP_HOST = os.getenv("SMTP_HOST", "")
     SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
     SMTP_USER = os.getenv("SMTP_USER", "")
