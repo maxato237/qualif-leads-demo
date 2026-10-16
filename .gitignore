@@ -6,3 +6,6 @@ node_modules/
 dist/
 .angular/
 .vscode/
+
+# Clés de compte de service Google : jamais dans le dépôt
+backend/*.json
