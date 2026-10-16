@@ -84,7 +84,7 @@ def make_client(llm=None, sink=None, mailer=None, quota=10, disabled=False):
         ),
         quota=DailyQuota(quota, today=lambda: date(2026, 10, 15)),
         sheet_url=sink.public_url if sink else None,
-        email_enabled=mailer is not None,
+        email_channel="brevo_api" if mailer else None,
     )
     app = create_app({"TESTING": True}, services=services)
     with app.app_context():
@@ -98,6 +98,7 @@ def test_health_indique_les_sorties_actives():
         "status": "ok",
         "sheet_url": "https://docs.google.com/spreadsheets/d/demo",
         "email_enabled": True,
+        "email_channel": "brevo_api",
     }
 
 
@@ -196,6 +197,8 @@ def test_un_canal_en_panne_ne_perd_pas_le_lead():
 
 def test_sorties_non_configurees():
     client, *_ = make_client(disabled=True)
+    health = client.get("/api/health").get_json()
+    assert (health["email_enabled"], health["email_channel"], health["sheet_url"]) == (False, None, None)
     data = client.post("/api/leads", json=LEAD).get_json()
     assert data["delivery"] == {"email": "disabled", "sheet": "disabled", "sheet_url": None}
     # Sans SMTP, l'aperçu montre quand même ce que l'agence recevrait.

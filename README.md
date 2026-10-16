@@ -111,7 +111,7 @@ manipulation) et vérifie leur catégorie et le délai de 10 secondes.
 
 | Méthode | Route | Rôle |
 |---|---|---|
-| GET | `/api/health` | État, lien public du Sheet, email actif ou non |
+| GET | `/api/health` | État, lien public du Sheet, canal d'envoi de l'email (`brevo_api`, `smtp` ou `null`) |
 | POST | `/api/leads` | `{name, email, company, message}` -> `{score, lead, delivery, latency_ms}` |
 
 Erreurs : `{"error": {"code", "message", "fields"?}}` avec `invalid_lead` (400, liste

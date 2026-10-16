@@ -34,7 +34,8 @@ def health():
     return jsonify({
         "status": "ok",
         "sheet_url": services.sheet_url,
-        "email_enabled": services.email_enabled,
+        "email_enabled": services.email_channel is not None,
+        "email_channel": services.email_channel,
     })
 
 
