@@ -26,7 +26,9 @@ class LeadServices:
     qualification: QualificationService
     quota: DailyQuota
     sheet_url: str | None
-    email_enabled: bool
+    # "brevo_api", "smtp" ou None : visible dans /api/health pour vérifier la config
+    # en ligne sans envoyer de lead.
+    email_channel: str | None
 
 
 def create_app(overrides: dict | None = None, services: LeadServices | None = None) -> Flask:
@@ -62,7 +64,7 @@ def build_services(config) -> LeadServices:
         qualification=QualificationService(extractor, sheet, mailer, lambda: datetime.now(timezone)),
         quota=DailyQuota(config["DAILY_QUOTA"]),
         sheet_url=sheet.public_url if sheet else None,
-        email_enabled=mailer is not None,
+        email_channel=_channel(mailer),
     )
 
 
@@ -77,6 +79,14 @@ def _build_sheet(config) -> GoogleSheetSink | None:
         # Clé mal collée : la démo démarre quand même, le Sheet est seulement désactivé.
         logger.error("Clé du compte de service Google invalide : %s", exc)
         return None
+
+
+def _channel(mailer) -> str | None:
+    if isinstance(mailer, BrevoApiMailer):
+        return "brevo_api"
+    if isinstance(mailer, SmtpMailer):
+        return "smtp"
+    return None
 
 
 def _build_mailer(config) -> BrevoApiMailer | SmtpMailer | None:

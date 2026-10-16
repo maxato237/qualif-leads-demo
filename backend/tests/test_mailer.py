@@ -3,7 +3,7 @@
 import pytest
 import requests
 
-from app import _build_mailer
+from app import _build_mailer, _channel
 from app.config import Config
 from app.infra import mailer as mailer_module
 from app.infra.delivery import DeliveryError
@@ -97,3 +97,11 @@ def test_smtp_sans_cle_api():
 def test_rien_de_configure():
     assert _build_mailer(config()) is None
     assert _build_mailer(config(BREVO_API_KEY="cle", MAIL_TO="")) is None
+
+
+def test_canal_annonce_dans_health():
+    # Une clé API absente en ligne retombait en silence sur le SMTP bloqué :
+    # le canal affiché permet de le voir sans envoyer de lead.
+    assert _channel(_build_mailer(config(BREVO_API_KEY="cle"))) == "brevo_api"
+    assert _channel(_build_mailer(config(SMTP_HOST="smtp", SMTP_USER="u", SMTP_PASSWORD="p"))) == "smtp"
+    assert _channel(_build_mailer(config())) is None

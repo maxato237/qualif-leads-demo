@@ -43,6 +43,7 @@ export interface Health {
   status: 'ok';
   sheet_url: string | null;
   email_enabled: boolean;
+  email_channel: 'brevo_api' | 'smtp' | null;
 }
 
 export type LeadField = 'name' | 'email' | 'company' | 'message';
