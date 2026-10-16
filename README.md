@@ -12,7 +12,7 @@ flowchart LR
   F -->|HTTPS JSON| A[API Flask]
   A --> X[Extraction<br/>Mistral, mode JSON]
   X --> S[Score<br/>grille en Python]
-  S --> M[Email SMTP]
+  S --> M[Email<br/>API Brevo]
   S --> G[Google Sheet]
 ```
 
@@ -39,7 +39,7 @@ Backend Flask en 3 couches :
 |---|---|
 | `app/api/` | Routes, validation (pydantic), format d'erreur unique, rate limiting |
 | `app/services/` | Extraction, grille de score, mise en forme du Sheet et de l'email, orchestration |
-| `app/infra/` | Client Mistral, Google Sheets (compte de service), SMTP, quota journalier |
+| `app/infra/` | Client Mistral, Google Sheets (compte de service), email (API Brevo ou SMTP), quota journalier |
 
 Le Sheet et l'email partent en parallèle. Si l'un des deux échoue, le lead reste
 qualifié et la réponse indique quel canal a échoué.
@@ -54,7 +54,7 @@ cp .env.example .env                                 # renseigner au moins MISTR
 .venv/Scripts/python wsgi.py                         # API sur http://localhost:5000
 ```
 
-Sans Google ni SMTP configurés, la démo fonctionne : les envois sont simplement
+Sans Google ni email configurés, la démo fonctionne : les envois sont simplement
 affichés comme désactivés.
 
 ```sh
@@ -81,15 +81,25 @@ npm start                                            # http://localhost:4200, /a
 
 ### Email (Brevo, offre gratuite : 300 emails par jour)
 
-1. Créer un compte sur https://www.brevo.com, valider une adresse d'expéditeur.
-2. SMTP et API > SMTP : récupérer l'identifiant et générer une clé SMTP.
-3. Dans `.env` : `SMTP_USER`, `SMTP_PASSWORD` (la clé SMTP), `MAIL_FROM` (l'expéditeur
-   validé) et `MAIL_TO` (la boîte de démo qui reçoit les leads).
+1. Créer un compte sur https://www.brevo.com, valider une adresse d'expéditeur
+   (idéalement authentifier le domaine : code Brevo, DKIM et DMARC dans le DNS).
+2. SMTP et API > Clés API : générer une clé API (https://app.brevo.com/settings/keys/api).
+3. Dans `.env` : `BREVO_API_KEY`, `MAIL_FROM` (l'expéditeur validé, avec un nom
+   d'affichage facultatif : `Nom <adresse>`) et `MAIL_TO` (la boîte de démo qui reçoit
+   les leads).
+
+L'envoi passe par l'API HTTP de Brevo, sur le port 443. Le SMTP reste possible
+(`SMTP_USER`, `SMTP_PASSWORD`, sans `BREVO_API_KEY`), mais beaucoup d'hébergeurs
+bloquent la sortie SMTP : sur Sevalla, la connexion au port 587 restait suspendue
+jusqu'au délai d'attente de 10 secondes, et l'email n'arrivait jamais.
+
+Si Brevo refuse la clé depuis le serveur (`401`, adresse IP non reconnue), désactiver
+le blocage des IP inconnues dans Sécurité > IP autorisées.
 
 ## Tests
 
 ```sh
-cd backend && .venv/Scripts/python -m pytest -q      # 29 tests, sans réseau
+cd backend && .venv/Scripts/python -m pytest -q      # 37 tests, sans réseau
 cd frontend && npm test                              # 6 tests
 ```
 

@@ -12,7 +12,7 @@ from app.api.routes import api
 from app.config import Config
 from app.extensions import limiter
 from app.infra.llm_client import MistralLLMClient
-from app.infra.mailer import SmtpMailer
+from app.infra.mailer import BrevoApiMailer, SmtpMailer
 from app.infra.quota import DailyQuota
 from app.infra.sheets_client import GoogleSheetSink, load_service_account
 from app.services.extraction import ExtractionService
@@ -79,11 +79,22 @@ def _build_sheet(config) -> GoogleSheetSink | None:
         return None
 
 
-def _build_mailer(config) -> SmtpMailer | None:
-    required = ("SMTP_HOST", "SMTP_USER", "SMTP_PASSWORD", "MAIL_FROM", "MAIL_TO")
+def _build_mailer(config) -> BrevoApiMailer | SmtpMailer | None:
+    if not (config["MAIL_FROM"] and config["MAIL_TO"]):
+        logger.warning("Email non configuré (MAIL_FROM ou MAIL_TO manquant) : aucune notification")
+        return None
+    # L'API HTTP passe partout ; le SMTP reste possible là où le port 587 est ouvert.
+    if config["BREVO_API_KEY"]:
+        try:
+            return BrevoApiMailer(config["BREVO_API_KEY"], config["MAIL_FROM"], config["MAIL_TO"])
+        except ValueError as exc:
+            logger.error("Email désactivé : %s", exc)
+            return None
+    required = ("SMTP_HOST", "SMTP_USER", "SMTP_PASSWORD")
     missing = [key for key in required if not config[key]]
     if missing:
-        logger.warning("Email non configuré (%s manquant) : aucune notification", ", ".join(missing))
+        logger.warning("Email non configuré (BREVO_API_KEY, ou %s manquant) : aucune notification",
+                       ", ".join(missing))
         return None
     return SmtpMailer(
         config["SMTP_HOST"], config["SMTP_PORT"], config["SMTP_USER"], config["SMTP_PASSWORD"],
