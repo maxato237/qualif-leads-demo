@@ -93,5 +93,6 @@ def create_lead():
             "sheet": result.sheet,
             "sheet_url": services.sheet_url,
         },
+        "email_preview": asdict(result.email_preview),
         "latency_ms": latency_ms,
     })

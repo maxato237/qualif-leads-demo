@@ -8,6 +8,7 @@ from app.infra.delivery import DeliveryError
 
 
 class Mailer(Protocol):
+    sender: str
     recipient: str
 
     def send(self, subject: str, body: str) -> None: ...
@@ -20,14 +21,14 @@ class SmtpMailer:
         self._port = port
         self._user = user
         self._password = password
-        self._sender = sender
+        self.sender = sender
         self.recipient = recipient
         self._timeout = timeout
 
     def send(self, subject: str, body: str) -> None:
         message = EmailMessage()
         # Destinataire fixe, issu de la configuration : jamais une adresse saisie par le visiteur.
-        message["From"] = self._sender
+        message["From"] = self.sender
         message["To"] = self.recipient
         message["Subject"] = " ".join(subject.split())
         message.set_content(body)

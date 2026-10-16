@@ -227,6 +227,58 @@ ul {
   box-shadow: 0 0 0 4px var(--ko-soft);
 }
 
+.mail {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mail-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.mail-head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+}
+
+.mail-head div {
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  gap: 8px;
+}
+
+.mail-head dt {
+  font-size: 14px;
+}
+
+.mail-head dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.mail-subject {
+  font-weight: 600;
+}
+
+.mail-body {
+  max-height: 280px;
+  overflow: auto;
+  padding: 12px 14px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 .actions {
   display: flex;
   flex-wrap: wrap;

@@ -30,6 +30,7 @@ const RESULT: QualifiedLead = {
     next_action: 'Rappeler cette semaine.',
   },
   delivery: { email: 'sent', sheet: 'sent', sheet_url: 'https://docs.google.com/spreadsheets/d/demo' },
+  email_preview: { sender: 'Atelier Ardoise (démo) <demo@example.com>', subject: '[Lead 10/10, chaud] Boutique en ligne, Cave des Chartrons', body: 'Nouveau lead : 10/10 (Chaud)' },
   latency_ms: 3400,
 };
 
