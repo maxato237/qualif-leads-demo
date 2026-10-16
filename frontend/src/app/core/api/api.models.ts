@@ -34,6 +34,8 @@ export interface QualifiedLead {
     next_action: string;
   };
   delivery: { email: DeliveryStatus; sheet: DeliveryStatus; sheet_url: string | null };
+  /** L'email tel que l'agence le reçoit. Le destinataire n'est jamais renvoyé. */
+  email_preview: { sender: string | null; subject: string; body: string };
   latency_ms: number;
 }
 

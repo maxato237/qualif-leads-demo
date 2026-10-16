@@ -73,6 +73,18 @@
     </li>
   </ul>
 
+  <section class="mail" aria-label="Email reçu par l'agence">
+    <p class="eyebrow">L'email reçu par l'agence</p>
+    <div class="mail-card">
+      <dl class="mail-head">
+        <div><dt>De</dt><dd>{{ r.email_preview.sender || 'Atelier Ardoise (démo)' }}</dd></div>
+        <div><dt>À</dt><dd>Équipe commerciale d'Atelier Ardoise</dd></div>
+        <div><dt>Objet</dt><dd class="mail-subject">{{ r.email_preview.subject }}</dd></div>
+      </dl>
+      <div class="mail-body" tabindex="0" aria-label="Contenu de l'email">{{ r.email_preview.body }}</div>
+    </div>
+  </section>
+
   <div class="actions">
     @if (r.delivery.sheet_url) {
       <a class="button button-primary" [href]="r.delivery.sheet_url" target="_blank" rel="noopener">

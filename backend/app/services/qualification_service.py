@@ -17,11 +17,22 @@ DeliveryStatus = Literal["sent", "failed", "disabled"]
 
 
 @dataclass(frozen=True)
+class EmailPreview:
+    """L'email tel que l'agence le reçoit, montré au visiteur. Sans le destinataire :
+    l'adresse de la boîte de démo n'a pas à être publique."""
+
+    sender: str | None
+    subject: str
+    body: str
+
+
+@dataclass(frozen=True)
 class Qualification:
     lead: LeadExtraction
     score: Score
     email: DeliveryStatus
     sheet: DeliveryStatus
+    email_preview: EmailPreview
 
 
 class QualificationService:
@@ -43,14 +54,20 @@ class QualificationService:
         if self._sheet is not None:
             row = formatting.sheet_row(self._now(), request.name, email, request.company, lead, score)
             sheet_job = self._pool.submit(self._sheet.append, row)
+        # Construit même sans SMTP : l'aperçu montre ce que l'agence recevrait.
+        preview = EmailPreview(
+            sender=self._mailer.sender if self._mailer else None,
+            subject=formatting.email_subject(request.name, request.company, lead, score),
+            body=formatting.email_body(request.name, email, request.company, request.message, lead, score),
+        )
         mail_job = None
         if self._mailer is not None:
-            mail_job = self._pool.submit(
-                self._mailer.send,
-                formatting.email_subject(request.name, request.company, lead, score),
-                formatting.email_body(request.name, email, request.company, request.message, lead, score),
-            )
-        return Qualification(lead, score, email=_status(mail_job, "email"), sheet=_status(sheet_job, "sheet"))
+            mail_job = self._pool.submit(self._mailer.send, preview.subject, preview.body)
+        return Qualification(
+            lead, score,
+            email=_status(mail_job, "email"), sheet=_status(sheet_job, "sheet"),
+            email_preview=preview,
+        )
 
 
 def _status(job, channel: str) -> DeliveryStatus:

@@ -61,7 +61,8 @@ class FakeSink:
 
 
 class FakeMailer:
-    recipient = "agence@example.com"
+    sender = "Atelier Ardoise (démo) <demo@example.com>"
+    recipient = "boite-privee@example.com"
 
     def __init__(self, error=False):
         self.sent = []
@@ -119,6 +120,11 @@ def test_lead_qualifie_enregistre_et_notifie():
 
     assert sink.rows[0][7:9] == ["Paul G.", "p***@example.com"]
     subject, body = mailer.sent[0]
+    # Le visiteur voit l'email exact envoyé à l'agence, mais jamais l'adresse de la boîte.
+    assert data["email_preview"] == {
+        "sender": "Atelier Ardoise (démo) <demo@example.com>", "subject": subject, "body": body,
+    }
+    assert "boite-privee@example.com" not in response.get_data(as_text=True)
     assert subject == "[Lead 8/10, chaud] Refonte, Girard Architectes"
     assert "paul.girard@example.com" in body
     # Le message du visiteur est encadré comme une donnée, pas comme une consigne,
@@ -192,6 +198,9 @@ def test_sorties_non_configurees():
     client, *_ = make_client(disabled=True)
     data = client.post("/api/leads", json=LEAD).get_json()
     assert data["delivery"] == {"email": "disabled", "sheet": "disabled", "sheet_url": None}
+    # Sans SMTP, l'aperçu montre quand même ce que l'agence recevrait.
+    assert data["email_preview"]["sender"] is None
+    assert data["email_preview"]["subject"].startswith("[Lead 8/10, chaud]")
 
 
 def test_quota_journalier():
